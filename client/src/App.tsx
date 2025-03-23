@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { io } from "socket.io-client"
+import PushModal from "./component/PushModal";
+
 
 
 
@@ -11,23 +13,12 @@ const socket = io('http://localhost:8000'); // Connect to the server
 const App = () => {
   const [pushMessage, setPushMessage] = useState<string>('');
   const [notifications, setNotifications] = useState<string[]>([]);
+  const [modalMessage, setModalMessage] = useState<string | null>(null); 
 
-  // Request notification permission when the component mounts
   useEffect(() => {
-    if (Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    }
-
-    // Listen for notifications from the server
     socket.on('notification', (data) => {
       setNotifications((prevNotifications) => [...prevNotifications, data.message]);
-      // Show browser notification
-      if (Notification.permission === 'granted') {
-        new Notification('New Notification', {
-          body: data.message,
-          icon: 'https://example.com/icon.png', // Optional: Add an icon URL
-        });
-      }
+      setModalMessage(data.message); // Set the modal message
     });
 
     return () => {
@@ -41,6 +32,10 @@ const App = () => {
       socket.emit('pushNotification', { message: pushMessage });
       setPushMessage('');
     }, 500);
+  };
+
+  const closeModal = () => {
+    setModalMessage(null); // Close the modal
   };
 
   return (
@@ -65,6 +60,8 @@ const App = () => {
           </div>
         ))}
       </div>
+        <PushModal message ={modalMessage} onClose={closeModal}/>
+  
     </div>
   );
 };
