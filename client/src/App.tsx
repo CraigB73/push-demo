@@ -60,8 +60,9 @@ const App = () => {
           </div>
         ))}
       </div>
+      <div >
         <PushModal message ={modalMessage} onClose={closeModal}/>
-  
+      </div>
     </div>
   );
 };
